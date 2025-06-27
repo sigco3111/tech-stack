@@ -13,7 +13,17 @@ const TechStackRecommender = () => {
     {
       id: 'projectType',
       question: '어떤 종류의 프로젝트인가요?',
-      options: ['웹 애플리케이션', '모바일 앱', '데스크톱 앱', '게임', 'API/백엔드 서비스', '데이터 분석', '기타']
+      options: ['웹 애플리케이션', '모바일 앱', '데스크톱 앱', '게임', 'API/백엔드 서비스', '데이터 분석', 'AI/ML', '블록체인', 'IoT', '기타']
+    },
+    {
+      id: 'platform',
+      question: '주요 플랫폼은?',
+      options: ['iOS', 'Android', '크로스 플랫폼', '웹 브라우저', 'Windows', 'macOS', 'Linux', '임베디드 시스템']
+    },
+    {
+      id: 'techPreference',
+      question: '기술 선호도는?',
+      options: ['최신 기술 (혁신적, 빠른 발전)', '안정화된 기술 (검증됨, 안정적)', '균형 (적절한 조합)', '상관없음']
     },
     {
       id: 'scale',
@@ -37,35 +47,177 @@ const TechStackRecommender = () => {
     }
   ];
 
+  const analyzeInput = (input) => {
+    const inputText = typeof input === 'string' ? input.toLowerCase() : 
+      Object.values(input).join(' ').toLowerCase();
+    
+    const keywords = {
+      ios: ['ios', 'iphone', 'ipad', 'swift', 'apple', '아이폰', '아이패드'],
+      android: ['android', 'google', '안드로이드'],
+      web: ['web', '웹', 'website', '웹사이트', 'browser', '브라우저'],
+      mobile: ['mobile', 'app', '모바일', '앱'],
+      ai: ['ai', 'ml', 'machine learning', 'llm', 'chatbot', '인공지능', '머신러닝', '챗봇', '온디바이스'],
+      game: ['game', '게임', 'unity', 'unreal'],
+      blockchain: ['blockchain', 'crypto', '블록체인', '암호화폐'],
+      data: ['data', 'analytics', '데이터', '분석'],
+      api: ['api', 'backend', '백엔드', 'server', '서버'],
+      desktop: ['desktop', '데스크톱', 'electron']
+    };
+
+    const detected = {};
+    for (const [category, words] of Object.entries(keywords)) {
+      detected[category] = words.some(word => inputText.includes(word));
+    }
+
+    return detected;
+  };
+
+  const getTechStack = (analysis, preferences = {}) => {
+    const { techPreference = '균형', projectType, platform, experience } = preferences;
+    const isLatest = techPreference.includes('최신');
+    const isStable = techPreference.includes('안정화된');
+    
+    // iOS 온디바이스 LLM 특별 처리
+    if (analysis.ios && analysis.ai && typeof preferences === 'object') {
+      return {
+        mainStack: {
+          'Core AI': isLatest ? ['MLX', 'Core ML', 'ONNX Runtime'] : ['Core ML', 'TensorFlow Lite', 'PyTorch Mobile'],
+          'iOS Development': isLatest ? ['SwiftUI', 'Swift 5.9+', 'Xcode 15+'] : ['UIKit', 'Swift 5.0+', 'Xcode 14'],
+          'Model Management': ['Llama.cpp', 'Quantized Models', 'Metal Performance Shaders'],
+          'Storage': ['SQLite', 'Core Data', 'Realm']
+        },
+        reasoning: [
+          'MLX는 Apple Silicon에 최적화된 최신 머신러닝 프레임워크입니다',
+          'Core ML을 통해 온디바이스에서 효율적인 추론이 가능합니다',
+          'Llama.cpp는 모바일 환경에서 LLM 실행에 최적화되어 있습니다',
+          'Metal Performance Shaders로 GPU 가속을 활용할 수 있습니다'
+        ],
+        timeline: '4-6개월',
+        difficulty: 'advanced',
+        estimatedCost: '$5,000-15,000'
+      };
+    }
+
+    // 게임 개발
+    if (analysis.game) {
+      return {
+        mainStack: {
+          'Game Engine': isLatest ? ['Godot 4', 'Bevy', 'Defold'] : ['Unity', 'Unreal Engine', 'Godot'],
+          'Programming': isLatest ? ['Rust', 'C#', 'GDScript'] : ['C#', 'C++', 'JavaScript'],
+          'Graphics': ['Vulkan', 'Metal', 'DirectX'],
+          'Audio': ['FMOD', 'Wwise', 'OpenAL']
+        },
+        reasoning: [
+          isLatest ? 'Godot 4는 최신 렌더링 파이프라인을 제공합니다' : 'Unity는 가장 널리 사용되는 게임 엔진입니다',
+          '크로스 플랫폼 배포가 용이합니다',
+          '풍부한 에셋 스토어와 커뮤니티 지원이 있습니다'
+        ],
+        timeline: '6-12개월',
+        difficulty: 'intermediate',
+        estimatedCost: '$3,000-10,000'
+      };
+    }
+
+    // 블록체인
+    if (analysis.blockchain) {
+      return {
+        mainStack: {
+          'Blockchain': isLatest ? ['Solana', 'Aptos', 'Sui'] : ['Ethereum', 'Polygon', 'BSC'],
+          'Smart Contracts': isLatest ? ['Move', 'Rust', 'Cairo'] : ['Solidity', 'Vyper'],
+          'Frontend': isLatest ? ['Next.js 14', 'Wagmi v2', 'Viem'] : ['React', 'Web3.js', 'Ethers.js'],
+          'Tools': ['Hardhat', 'Foundry', 'IPFS']
+        },
+        reasoning: [
+          isLatest ? 'Solana는 높은 처리량과 낮은 수수료를 제공합니다' : 'Ethereum은 가장 안정적인 스마트 컨트랙트 플랫폼입니다',
+          '탈중앙화 애플리케이션 개발에 최적화되어 있습니다',
+          '활발한 개발자 생태계를 가지고 있습니다'
+        ],
+        timeline: '3-5개월',
+        difficulty: 'advanced',
+        estimatedCost: '$5,000-20,000'
+      };
+    }
+
+    // 데이터 분석
+    if (analysis.data) {
+      return {
+        mainStack: {
+          'Languages': isLatest ? ['Python 3.12', 'Polars', 'DuckDB'] : ['Python', 'Pandas', 'NumPy'],
+          'Visualization': isLatest ? ['Plotly Dash', 'Streamlit', 'Observable'] : ['Matplotlib', 'Seaborn', 'Tableau'],
+          'ML/AI': isLatest ? ['PyTorch 2.0', 'Hugging Face', 'LangChain'] : ['Scikit-learn', 'TensorFlow', 'Keras'],
+          'Database': isLatest ? ['ClickHouse', 'TimescaleDB'] : ['PostgreSQL', 'MongoDB']
+        },
+        reasoning: [
+          'Python은 데이터 분석 분야에서 가장 널리 사용됩니다',
+          isLatest ? 'Polars는 Pandas보다 빠른 성능을 제공합니다' : 'Pandas는 검증된 데이터 처리 라이브러리입니다',
+          '풍부한 머신러닝 라이브러리 생태계를 가지고 있습니다'
+        ],
+        timeline: '2-4개월',
+        difficulty: 'intermediate',
+        estimatedCost: '$1,000-5,000'
+      };
+    }
+
+    // Android 앱
+    if (analysis.android) {
+      return {
+        mainStack: {
+          'Android Development': isLatest ? ['Jetpack Compose', 'Kotlin Multiplatform', 'Android 14'] : ['Android Views', 'Kotlin', 'Java'],
+          'Architecture': isLatest ? ['MVVM', 'Clean Architecture', 'Hilt'] : ['MVP', 'Room', 'Retrofit'],
+          'Backend': isLatest ? ['Ktor', 'Supabase', 'Firebase'] : ['Spring Boot', 'Node.js', 'Firebase'],
+          'Database': ['Room', 'SQLite', 'Realm']
+        },
+        reasoning: [
+          isLatest ? 'Jetpack Compose는 현대적인 UI 개발을 가능하게 합니다' : 'Android Views는 안정적이고 검증된 UI 시스템입니다',
+          'Kotlin은 Google이 공식 추천하는 언어입니다',
+          '풍부한 라이브러리와 도구들이 제공됩니다'
+        ],
+        timeline: '3-5개월',
+        difficulty: 'intermediate',
+        estimatedCost: '$2,000-8,000'
+      };
+    }
+
+    // 웹 애플리케이션 (기본값)
+    return {
+      mainStack: {
+        'Frontend': isLatest ? ['Next.js 14', 'React 18', 'TypeScript', 'Tailwind CSS'] : ['React', 'Vue.js', 'Bootstrap', 'JavaScript'],
+        'Backend': isLatest ? ['Bun', 'Hono', 'tRPC', 'Prisma'] : ['Node.js', 'Express', 'REST API'],
+        'Database': isLatest ? ['Turso', 'PlanetScale', 'Supabase'] : ['PostgreSQL', 'MongoDB', 'MySQL'],
+        'Deployment': isLatest ? ['Vercel', 'Railway', 'Cloudflare'] : ['AWS', 'Heroku', 'DigitalOcean']
+      },
+      reasoning: [
+        isLatest ? 'Next.js 14는 최신 React 기능과 성능 최적화를 제공합니다' : 'React는 가장 인기 있고 안정적인 프론트엔드 라이브러리입니다',
+        isLatest ? 'Bun은 Node.js보다 빠른 런타임 성능을 제공합니다' : 'Node.js는 검증된 백엔드 런타임입니다',
+        '큰 개발자 커뮤니티와 풍부한 리소스를 가지고 있습니다'
+      ],
+      timeline: '2-4개월',
+      difficulty: 'intermediate',
+      estimatedCost: '$1,500-6,000'
+    };
+  };
+
   const generateRecommendation = async (input) => {
     setIsLoading(true);
     
-    // 실제 구현에서는 Claude API 활용
-    const mockRecommendation = {
-      mainStack: {
-        frontend: ['React', 'TypeScript', 'Tailwind CSS'],
-        backend: ['Node.js', 'Express', 'PostgreSQL'],
-        mobile: ['React Native'],
-        cloud: ['AWS', 'Docker', 'GitHub Actions']
-      },
-      reasoning: [
-        'React는 컴포넌트 기반 아키텍처로 확장성이 뛰어납니다',
-        'TypeScript로 타입 안정성을 확보할 수 있습니다',
-        'PostgreSQL은 복잡한 데이터 관계를 효율적으로 처리합니다',
-        'AWS는 안정적인 클라우드 인프라를 제공합니다'
-      ],
-      timeline: '3-4개월',
-      difficulty: 'intermediate',
-      estimatedCost: '$2,000-5,000',
+    const analysis = analyzeInput(input);
+    const preferences = typeof input === 'object' ? input : {};
+    const stack = getTechStack(analysis, preferences);
+    
+    const recommendation = {
+      ...stack,
       alternatives: [
-        { name: 'Vue.js + Laravel', reason: '더 쉬운 학습 곡선' },
-        { name: 'Flutter + Firebase', reason: '더 빠른 개발 속도' }
+        { 
+          name: preferences.techPreference?.includes('최신') ? '안정화된 스택' : '최신 기술 스택', 
+          reason: preferences.techPreference?.includes('최신') ? '더 안정적이고 검증된 기술들' : '더 혁신적이고 빠른 개발'
+        },
+        { name: '하이브리드 접근', reason: '최신 기술과 안정화된 기술의 조합' }
       ]
     };
 
     // 2초 지연으로 로딩 시뮬레이션
     setTimeout(() => {
-      setRecommendation(mockRecommendation);
+      setRecommendation(recommendation);
       setIsLoading(false);
       setCurrentStep('result');
     }, 2000);
