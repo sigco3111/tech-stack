@@ -7,7 +7,8 @@ AI 기반 기술스택 추천 시스템입니다. 사용자의 아이디어와 �
 
 TechStack AI는 개발자들이 새로운 프로젝트를 시작할 때 적절한 기술스택을 선택할 수 있도록 도와주는 인공지능 기반 추천 시스템입니다. 자유로운 텍스트 입력 또는 구조화된 질문을 통해 프로젝트 요구사항을 분석하고, 최적의 기술조합을 제안합니다.
 
-실행 주소 : https://dev-canvas-pi.vercel.app/
+실행 주소(포탈) : https://dev-canvas-pi.vercel.app/
+실행 주소 : https://claude.ai/public/artifacts/84011dc3-0a71-406f-9a81-01119bff4907
 
 ## ✨ 주요 기능
 
